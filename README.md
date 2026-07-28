@@ -131,56 +131,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
----
-
-# 🖥️ Supported Platform
-
-| Operating System | Support |
-|------------------|:-------:|
-| Windows | ✅ |
-| Linux | ⚠️ Experimental |
-| macOS | ⚠️ Experimental |
-
----
-
-# 📋 Roadmap
-
-## Completed
-
-- [x] Merge PDF
-- [x] Split PDF
-- [x] Rotate PDF
-- [x] Images to PDF
-- [x] PDF to Images
-- [x] Watermark PDF
-- [x] Modern UI
-- [x] Offline Processing
-
-## Planned
-
-- [ ] Compress PDF
-- [ ] Password Protection
-- [ ] Remove Password
-- [ ] Extract Images
-- [ ] PDF Metadata Editor
-- [ ] Dark / Light Theme Switch
-- [ ] Batch Processing
-
----
-
-# 🔒 Privacy
-
-DocCraft processes every document locally on your device.
-
-- No internet connection required.
-- No files uploaded.
-- No tracking.
-- No cloud storage.
-
-Your documents never leave your computer.
-
----
-
 # 🤝 Contributing
 
 Contributions are welcome!
