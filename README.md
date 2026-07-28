@@ -1,107 +1,222 @@
-# PDF Toolkit Pro 📄🚀
+# 📄 DocCraft
 
-**PDF Toolkit Pro** is a modern, high-performance, **100% offline desktop application** built with Python and CustomTkinter. It provides a complete suite of professional PDF manipulation tools—similar to PDFgear or SmallPDF Desktop—without cloud dependencies, AI APIs, or internet connectivity requirements.
+> **A modern offline PDF toolkit built with Python and CustomTkinter.**
 
----
-
-## 🌟 Key Features
-
-1. **Merge PDF**: Select multiple PDF files or folders, reorder pages/documents with live drag/move controls, and combine them into a single PDF.
-2. **Split PDF**: Split documents into individual page PDFs, extract custom page ranges (e.g. `1-3, 5, 8-10`) with real-time syntax validation, or divide into equal page chunks.
-3. **Rotate Pages**: Rotate PDF pages by 90° (Clockwise/Counter-Clockwise) or 180° (Upside-Down) with visual thumbnail grid previews.
-4. **Images to PDF**: Convert PNG, JPG, JPEG, and BMP images into a single combined PDF document with custom order.
-5. **PDF to Images**: Rasterize PDF pages into crisp images (PNG or JPEG) at customizable DPI resolutions (72, 150, 300 DPI).
-6. **Watermark**: Stamp custom Text or Image logo watermarks onto PDF pages with full control over opacity, rotation, scale, and placement grid.
-7. **Recent Activity History**: Tracks recent operations and output paths for easy 1-click access.
+![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
+![Platform](https://img.shields.io/badge/Platform-Windows-blue?style=for-the-badge&logo=windows)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 
 ---
 
-## 🎨 UI & Design System
 
-- **Theme**: Modern Slate Dark Mode (`#0F172A` background, `#1E293B` cards, `#3B82F6` primary accent).
-- **Interactivity**: Micro-animations on card hover and press actions, progress indicators, status toasts, and error handling.
-- **Multithreaded**: All backend operations execute asynchronously in worker threads to keep the UI smooth and responsive.
 
----
+# ✨ About
 
-## 🛠️ Technology Stack
+**DocCraft** is a modern desktop PDF utility built entirely with **Python**.
 
-- **Language**: Python 3.12+
-- **GUI Framework**: CustomTkinter
-- **PDF Engines**: PyMuPDF (`fitz`), `pypdf`, ReportLab
-- **Image Processing**: Pillow (`PIL`)
+It allows users to perform common PDF operations through a clean and intuitive interface without requiring an internet connection or third-party cloud services.
+
+Everything runs locally on your computer, ensuring speed, privacy, and complete offline functionality.
 
 ---
 
-## 📁 Folder Structure
+# 🚀 Features
 
-```
-pdf-toolkit-pro/
-├── app.py                  # Main application entry point & window manager
-├── requirements.txt        # Python package dependencies
-├── README.md               # Application documentation
-├── .gitignore              # Git ignore rules
-├── LICENSE                 # MIT License file
+| Feature | Status |
+|----------|:------:|
+| 📑 Merge Multiple PDFs | ✅ |
+| ✂️ Split PDF by Page Range | ✅ |
+| 🔄 Rotate PDF Pages | ✅ |
+| 🖼️ Images to PDF | ✅ |
+| 📷 PDF to Images | ✅ |
+| 💧 Text Watermark | ✅ |
+| 🖼️ Image Watermark | ✅ |
+| ⚡ Offline Processing | ✅ |
+| 🖥️ Modern Desktop UI | ✅ |
+| 📂 Drag & Drop Support | ✅ |
+
+---
+
+# 🎯 Why DocCraft?
+
+- ✅ Completely Offline
+- ✅ Fast Desktop Performance
+- ✅ No Cloud Services
+- ✅ No AI or API Required
+- ✅ Modern UI with CustomTkinter
+- ✅ Easy to Use
+- ✅ Lightweight
+- ✅ Privacy Friendly
+
+---
+
+# 🛠️ Built With
+
+- 🐍 Python 3.13
+- 🖥️ CustomTkinter
+- 📄 PyMuPDF (fitz)
+- 📚 pypdf
+- 🖼️ Pillow
+- 📑 ReportLab
+
+---
+
+# 📂 Project Structure
+
+```text
+DocCraft/
+│
 ├── assets/
-│   ├── logo.png            # Application logo
-│   └── icons/              # Feature card icons (dynamically generated)
+│   ├── icons/
+│   └── logo.png
+│
 ├── ui/
-│   ├── home.py             # Main dashboard with animated feature cards
-│   ├── merge.py            # PDF Merge view
-│   ├── split.py            # PDF Split view
-│   ├── rotate.py           # PDF Page Rotation view with thumbnail grid
-│   ├── image_to_pdf.py     # Images to PDF conversion view
-│   ├── pdf_to_image.py     # PDF to Images export view (72/150/300 DPI)
-│   └── watermark.py        # Text & Image Watermark view
+│   ├── home.py
+│   ├── merge.py
+│   ├── split.py
+│   ├── rotate.py
+│   ├── image_to_pdf.py
+│   ├── pdf_to_image.py
+│   └── watermark.py
+│
 ├── utils/
-│   ├── pdf_utils.py        # High-performance PDF processing engine
-│   ├── image_utils.py      # Image processing & asset generation
-│   └── helpers.py          # Recent files manager, path utilities, validators
-├── output/                 # Default destination directory for generated files
-└── temp/                   # Temporary file cache
+│   ├── pdf_utils.py
+│   ├── image_utils.py
+│   └── helpers.py
+│
+├── app.py
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Usage
+# ⚙️ Installation
 
-### 1. Prerequisites
-Ensure Python 3.12 or higher is installed on your system.
+## Clone the Repository
 
-### 2. Clone Repository & Setup Virtual Environment
 ```bash
-git clone https://github.com/your-username/pdf-toolkit-pro.git
-cd pdf-toolkit-pro
+git clone https://github.com/Vikki-2006/Doc-craft.git
 
-# Create virtual environment
+cd Doc-craft
+```
+
+---
+
+## Create Virtual Environment
+
+### Windows
+
+```bash
 python -m venv .venv
 
-# Activate virtual environment
-# Windows (PowerShell):
-.\.venv\Scripts\Activate.ps1
-# Linux/macOS:
-source .venv/bin/activate
+.venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+---
+
+## Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Run Application
+---
+
+## Run the Application
+
 ```bash
 python app.py
 ```
 
 ---
 
-## 🛡️ Privacy & Security
+# 🖥️ Supported Platform
 
-- **100% Offline**: Zero network requests. Your documents never leave your local machine.
-- **No APIs or AI Cloud Services**: Purely local Python algorithms for deterministic and secure PDF operations.
+| Operating System | Support |
+|------------------|:-------:|
+| Windows | ✅ |
+| Linux | ⚠️ Experimental |
+| macOS | ⚠️ Experimental |
 
 ---
 
-## 📜 License
+# 📋 Roadmap
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Completed
+
+- [x] Merge PDF
+- [x] Split PDF
+- [x] Rotate PDF
+- [x] Images to PDF
+- [x] PDF to Images
+- [x] Watermark PDF
+- [x] Modern UI
+- [x] Offline Processing
+
+## Planned
+
+- [ ] Compress PDF
+- [ ] Password Protection
+- [ ] Remove Password
+- [ ] Extract Images
+- [ ] PDF Metadata Editor
+- [ ] Dark / Light Theme Switch
+- [ ] Batch Processing
+
+---
+
+# 🔒 Privacy
+
+DocCraft processes every document locally on your device.
+
+- No internet connection required.
+- No files uploaded.
+- No tracking.
+- No cloud storage.
+
+Your documents never leave your computer.
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork this repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the **LICENSE** file for more details.
+
+---
+
+# ⭐ Support
+
+If you found this project useful,
+
+please consider giving it a ⭐ on GitHub.
+
+It helps others discover the project and motivates future improvements.
+
+---
+
+## 👨‍💻 Author
+
+**Vigneshwaran S**
+
+GitHub:
+https://github.com/Vikki-2006
+
+---
+
+# ❤️ Built with Python
