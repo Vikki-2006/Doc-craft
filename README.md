@@ -199,24 +199,3 @@ This project is licensed under the **MIT License**.
 See the **LICENSE** file for more details.
 
 ---
-
-# ⭐ Support
-
-If you found this project useful,
-
-please consider giving it a ⭐ on GitHub.
-
-It helps others discover the project and motivates future improvements.
-
----
-
-## 👨‍💻 Author
-
-**Vigneshwaran S**
-
-GitHub:
-https://github.com/Vikki-2006
-
----
-
-# ❤️ Built with Python
