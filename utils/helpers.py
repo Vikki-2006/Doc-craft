@@ -7,9 +7,23 @@ import os
 import json
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 
-RECENT_FILES_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "recent_history.json")
+def _get_history_path():
+    default_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "recent_history.json")
+    try:
+        # Test if parent directory is writable
+        test_file = os.path.join(os.path.dirname(default_path), ".write_test")
+        with open(test_file, "w") as f:
+            f.write("1")
+        os.remove(test_file)
+        return default_path
+    except Exception:
+        return os.path.join(tempfile.gettempdir(), "doccraft_recent_history.json")
+
+RECENT_FILES_PATH = _get_history_path()
+
 
 class PDFToolkitError(Exception):
     """Base exception for PDF Toolkit Pro."""

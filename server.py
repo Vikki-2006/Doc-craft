@@ -6,13 +6,16 @@ Fully offline backend powered by Flask, PyMuPDF, pypdf, Pillow, and ReportLab.
 
 import os
 import sys
+import tempfile
 import webbrowser
 import threading
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, send_file
 
 # Ensure workspace root is in python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 from utils.pdf_utils import (
     merge_pdfs, split_pdf, rotate_pdf, pdf_to_images,
@@ -23,18 +26,47 @@ from utils.pdf_utils import (
 from utils.image_utils import images_to_pdf
 from utils.helpers import RecentFilesManager, format_bytes
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB max upload limit
 
-TEMP_DIR = os.path.join(os.path.dirname(__file__), "temp")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
+def _init_storage_dirs():
+    """Detect writable storage directory (local temp/output or system temp for serverless)."""
+    try:
+        local_temp = os.path.join(BASE_DIR, "temp")
+        local_out = os.path.join(BASE_DIR, "output")
+        os.makedirs(local_temp, exist_ok=True)
+        os.makedirs(local_out, exist_ok=True)
+        # Test write
+        test_file = os.path.join(local_temp, ".write_test")
+        with open(test_file, "w") as f:
+            f.write("1")
+        os.remove(test_file)
+        return local_temp, local_out
+    except Exception:
+        sys_temp = tempfile.gettempdir()
+        v_temp = os.path.join(sys_temp, "doccraft_temp")
+        v_out = os.path.join(sys_temp, "doccraft_output")
+        os.makedirs(v_temp, exist_ok=True)
+        os.makedirs(v_out, exist_ok=True)
+        return v_temp, v_out
 
-os.makedirs(TEMP_DIR, exist_ok=True)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+TEMP_DIR, OUTPUT_DIR = _init_storage_dirs()
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/favicon.ico")
+def favicon():
+    svg_fav = os.path.join(BASE_DIR, "static", "favicon.svg")
+    if os.path.exists(svg_fav):
+        return send_file(svg_fav, mimetype="image/svg+xml")
+    return ("", 204)
+
 
 @app.route("/output/<path:filename>")
 def download_file(filename):
