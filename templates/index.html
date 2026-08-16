@@ -1,724 +1,672 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Toolkit Pro - Modern Offline Web App</title>
+  <title>DocCraft — Document Studio</title>
+  <meta name="description" content="DocCraft is a professional document studio for merging, splitting, rotating, watermarking and converting PDF files. Private, local and instant.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="DocCraft — Document Studio">
+  <meta property="og:description" content="Every PDF tool you need. Local. Private. Instant.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+
+  <!-- Fonts: DM Serif Display + Inter + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-dark: #0F172A;
-      --card-bg: #1E293B;
-      --border-color: #334155;
-      --text-main: #F8FAFC;
-      --text-muted: #94A3B8;
-      --primary: #3B82F6;
-      --primary-hover: #2563EB;
-      --purple: #8B5CF6;
-      --pink: #EC4899;
-      --green: #10B981;
-      --amber: #F59E0B;
-      --sky: #0EA5E9;
-      --red: #EF4444;
-      --radius: 16px;
-    }
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--primary), var(--purple));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 20px;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .brand-title {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .badge-offline {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    main {
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 32px 24px;
-      flex: 1;
-    }
-
-    .nav-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-
-    .tab-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn:hover {
-      border-color: var(--primary);
-      color: var(--text-main);
-      transform: translateY(-2px);
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-    }
-
-    .tool-panel {
-      display: none;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 32px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      animation: fadeIn 0.3s ease;
-    }
-
-    .tool-panel.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .panel-header {
-      margin-bottom: 24px;
-    }
-
-    .panel-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .panel-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .dropzone {
-      border: 2px dashed var(--border-color);
-      border-radius: 14px;
-      padding: 40px 20px;
-      text-align: center;
-      background: rgba(15, 23, 42, 0.4);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 24px;
-    }
-
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--primary);
-      background: rgba(59, 130, 246, 0.05);
-    }
-
-    .dropzone-icon {
-      font-size: 40px;
-      margin-bottom: 12px;
-    }
-
-    .dropzone-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .dropzone-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .form-control {
-      width: 100%;
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .btn-action {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-action:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-
-    .file-list {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .file-item {
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      padding: 10px 14px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .result-box {
-      margin-top: 24px;
-      padding: 20px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 12px;
-      display: none;
-    }
-
-    .result-box.show {
-      display: block;
-    }
-
-    .result-title {
-      font-weight: 700;
-      color: var(--green);
-      margin-bottom: 8px;
-    }
-
-    .download-link {
-      display: inline-block;
-      margin-top: 10px;
-      background: var(--green);
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    .recent-section {
-      margin-top: 40px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 24px;
-    }
-
-    .recent-header {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <div class="brand-icon">📄</div>
-      <div>
-        <div class="brand-title">PDF Toolkit Pro</div>
-        <div class="brand-subtitle">Offline Browser Application</div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand" aria-label="DocCraft — Document Studio">
+        <img src="/static/logo.svg" alt="" class="nav-logo" width="26" height="26" aria-hidden="true">
+        <span class="nav-wordmark">DocCraft</span>
+      </a>
+
+      <div class="nav-links" id="nav-links">
+        <a href="#tools-section" class="nav-link">Tools</a>
+        <a href="#privacy-section" class="nav-link">Privacy</a>
+        <a href="#activity-section" class="nav-link">Activity</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-theme" onclick="toggleTheme()" aria-label="Toggle dark / light theme" id="btn-theme">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364-.707-.707M6.343 6.343l-.707-.707m12.728 0-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
+          </svg>
+        </button>
+        <button class="btn-menu" onclick="toggleMobileMenu()" aria-label="Open navigation menu" id="btn-menu" aria-expanded="false">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+          </svg>
+        </button>
       </div>
     </div>
-    <div class="badge-offline">🟢 100% Offline</div>
-  </header>
+  </nav>
 
-  <main>
-    <!-- Tool Selector Navigation -->
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTool('merge')">⚡ Merge PDF</button>
-      <button class="tab-btn" onclick="switchTool('split')">✂️ Split PDF</button>
-      <button class="tab-btn" onclick="switchTool('rotate')">🔄 Rotate Pages</button>
-      <button class="tab-btn" onclick="switchTool('img2pdf')">🖼️ Images to PDF</button>
-      <button class="tab-btn" onclick="switchTool('pdf2img')">📷 PDF to Images</button>
-      <button class="tab-btn" onclick="switchTool('watermark')">💧 Watermark</button>
-    </div>
-
-    <!-- 1. MERGE PANEL -->
-    <div id="panel-merge" class="tool-panel active">
-      <div class="panel-header">
-        <h2 class="panel-title">Merge PDF Files</h2>
-        <p class="panel-desc">Combine multiple PDF files into a single unified document.</p>
-      </div>
-
-      <div class="dropzone" onclick="document.getElementById('merge-files').click()">
-        <div class="dropzone-icon">📁</div>
-        <div class="dropzone-title">Click or Drop PDF files here</div>
-        <div class="dropzone-sub">Select 2 or more PDF documents</div>
-        <input type="file" id="merge-files" multiple accept=".pdf" style="display:none" onchange="handleFilesSelect('merge')">
-      </div>
-
-      <div id="merge-list" class="file-list"></div>
-      <button class="btn-action" onclick="submitMerge()">⚡ Merge PDFs Now</button>
-
-      <div id="merge-result" class="result-box">
-        <div class="result-title">✅ Merge Completed Successfully!</div>
-        <div id="merge-res-text">Your merged PDF document is ready.</div>
-        <a id="merge-dl" class="download-link" href="#" download>⬇️ Download Merged PDF</a>
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-kicker">Document Studio</p>
+      <h1 class="hero-headline">Your documents.<br>Under control.</h1>
+      <p class="hero-sub">Every PDF tool you need — merge, split, rotate, convert, watermark. All processed locally on your machine. Nothing leaves your computer.</p>
+      <div class="hero-ctas">
+        <a href="#tools-section" class="cta-primary" id="cta-start">
+          Start editing
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0-6.75-6.75M19.5 12l-6.75 6.75"/>
+          </svg>
+        </a>
+        <a href="#activity-section" class="cta-secondary">
+          View recent activity
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0-6.75-6.75M19.5 12l-6.75 6.75"/>
+          </svg>
+        </a>
       </div>
     </div>
+  </section>
 
-    <!-- 2. SPLIT PANEL -->
-    <div id="panel-split" class="tool-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Split PDF Document</h2>
-        <p class="panel-desc">Separate individual pages or extract custom page ranges.</p>
+  <!-- ═══════════════════════════════════════════════════════════
+       DOCUMENT STACK PREVIEW (CSS-only)
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="doc-preview" aria-hidden="true">
+    <div class="doc-preview-inner">
+      <div class="doc-preview-text">
+        <p class="section-label">What you get</p>
+        <h2>A workspace built for serious document work.</h2>
+        <p>Professional-grade PDF operations powered by PyMuPDF — the same engine trusted in enterprise document processing. Every operation runs locally; no cloud, no subscriptions, no data exposure.</p>
       </div>
-
-      <div class="dropzone" onclick="document.getElementById('split-file').click()">
-        <div class="dropzone-icon">✂️</div>
-        <div class="dropzone-title">Select PDF file to split</div>
-        <input type="file" id="split-file" accept=".pdf" style="display:none" onchange="handleFilesSelect('split')">
-      </div>
-
-      <div id="split-list" class="file-list"></div>
-
-      <div class="form-group">
-        <label class="form-label">Split Mode:</label>
-        <select id="split-mode" class="form-control" onchange="toggleSplitOptions()">
-          <option value="every">Split Every Page (1 PDF per page)</option>
-          <option value="range">Extract Page Range (e.g. 1-3, 5)</option>
-          <option value="chunk">Split into Equal Chunks (N pages per PDF)</option>
-        </select>
-      </div>
-
-      <div id="split-range-box" class="form-group" style="display:none">
-        <label class="form-label">Page Range Syntax (e.g. 1-3, 5, 8-10):</label>
-        <input type="text" id="split-range" class="form-control" placeholder="1-3, 5">
-      </div>
-
-      <div id="split-chunk-box" class="form-group" style="display:none">
-        <label class="form-label">Pages per Chunk:</label>
-        <input type="number" id="split-chunk" class="form-control" value="5">
-      </div>
-
-      <button class="btn-action" onclick="submitSplit()">✂️ Split PDF Now</button>
-
-      <div id="split-result" class="result-box">
-        <div class="result-title">✅ Split Completed!</div>
-        <div id="split-res-list"></div>
-      </div>
-    </div>
-
-    <!-- 3. ROTATE PANEL -->
-    <div id="panel-rotate" class="tool-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Rotate PDF Pages</h2>
-        <p class="panel-desc">Reorient PDF pages by 90°, 180°, or 270°.</p>
-      </div>
-
-      <div class="dropzone" onclick="document.getElementById('rotate-file').click()">
-        <div class="dropzone-icon">🔄</div>
-        <div class="dropzone-title">Select PDF file to rotate</div>
-        <input type="file" id="rotate-file" accept=".pdf" style="display:none" onchange="handleFilesSelect('rotate')">
-      </div>
-
-      <div id="rotate-list" class="file-list"></div>
-
-      <div class="form-group">
-        <label class="form-label">Rotation Angle:</label>
-        <select id="rotate-angle" class="form-control">
-          <option value="90">90° Clockwise (Right)</option>
-          <option value="180">180° Upside Down</option>
-          <option value="270">270° Counter-Clockwise (Left)</option>
-        </select>
-      </div>
-
-      <button class="btn-action" onclick="submitRotate()">🔄 Rotate Pages Now</button>
-
-      <div id="rotate-result" class="result-box">
-        <div class="result-title">✅ Rotation Completed!</div>
-        <a id="rotate-dl" class="download-link" href="#" download>⬇️ Download Rotated PDF</a>
-      </div>
-    </div>
-
-    <!-- 4. IMAGES TO PDF PANEL -->
-    <div id="panel-img2pdf" class="tool-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Images to PDF</h2>
-        <p class="panel-desc">Convert PNG, JPG, JPEG, and BMP images into a clean PDF.</p>
-      </div>
-
-      <div class="dropzone" onclick="document.getElementById('img2pdf-files').click()">
-        <div class="dropzone-icon">🖼️</div>
-        <div class="dropzone-title">Select Image Files</div>
-        <div class="dropzone-sub">PNG, JPG, JPEG, BMP</div>
-        <input type="file" id="img2pdf-files" multiple accept="image/*" style="display:none" onchange="handleFilesSelect('img2pdf')">
-      </div>
-
-      <div id="img2pdf-list" class="file-list"></div>
-      <button class="btn-action" onclick="submitImg2Pdf()">🖼️ Convert Images to PDF</button>
-
-      <div id="img2pdf-result" class="result-box">
-        <div class="result-title">✅ Conversion Completed!</div>
-        <a id="img2pdf-dl" class="download-link" href="#" download>⬇️ Download Generated PDF</a>
-      </div>
-    </div>
-
-    <!-- 5. PDF TO IMAGES PANEL -->
-    <div id="panel-pdf2img" class="tool-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">PDF to Images</h2>
-        <p class="panel-desc">Export PDF pages as PNG or JPEG images at 72, 150, or 300 DPI.</p>
-      </div>
-
-      <div class="dropzone" onclick="document.getElementById('pdf2img-file').click()">
-        <div class="dropzone-icon">📷</div>
-        <div class="dropzone-title">Select PDF file</div>
-        <input type="file" id="pdf2img-file" accept=".pdf" style="display:none" onchange="handleFilesSelect('pdf2img')">
-      </div>
-
-      <div id="pdf2img-list" class="file-list"></div>
-
-      <div class="form-group">
-        <label class="form-label">Export Format:</label>
-        <select id="pdf2img-format" class="form-control">
-          <option value="png">PNG (Lossless)</option>
-          <option value="jpeg">JPEG (Compact)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Resolution (DPI):</label>
-        <select id="pdf2img-dpi" class="form-control">
-          <option value="150">150 DPI (Standard)</option>
-          <option value="72">72 DPI (Web Draft)</option>
-          <option value="300">300 DPI (High Print Quality)</option>
-        </select>
-      </div>
-
-      <button class="btn-action" onclick="submitPdf2Img()">📷 Export Images Now</button>
-
-      <div id="pdf2img-result" class="result-box">
-        <div class="result-title">✅ Export Completed!</div>
-        <div id="pdf2img-res-list"></div>
-      </div>
-    </div>
-
-    <!-- 6. WATERMARK PANEL -->
-    <div id="panel-watermark" class="tool-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Add Watermark</h2>
-        <p class="panel-desc">Apply custom Text or Image logo watermarks.</p>
-      </div>
-
-      <div class="dropzone" onclick="document.getElementById('wm-file').click()">
-        <div class="dropzone-icon">💧</div>
-        <div class="dropzone-title">Select PDF file to watermark</div>
-        <input type="file" id="wm-file" accept=".pdf" style="display:none" onchange="handleFilesSelect('wm')">
-      </div>
-
-      <div id="wm-list" class="file-list"></div>
-
-      <div class="form-group">
-        <label class="form-label">Watermark Text:</label>
-        <input type="text" id="wm-text" class="form-control" value="CONFIDENTIAL">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Opacity (0.1 to 1.0):</label>
-        <input type="number" id="wm-opacity" class="form-control" step="0.1" value="0.3">
-      </div>
-
-      <button class="btn-action" onclick="submitWatermark()">💧 Apply Watermark Now</button>
-
-      <div id="wm-result" class="result-box">
-        <div class="result-title">✅ Watermark Applied!</div>
-        <a id="wm-dl" class="download-link" href="#" download>⬇️ Download Watermarked PDF</a>
-      </div>
-    </div>
-
-    <!-- RECENT ACTIVITY LOG -->
-    <div class="recent-section">
-      <div class="recent-header">🕒 Recent Operations History</div>
-      <div id="history-container">Loading recent history...</div>
-    </div>
-  </main>
-
-  <script>
-    function switchTool(toolId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
-      
-      event.target.classList.add('active');
-      document.getElementById(`panel-${toolId}`).classList.add('active');
-    }
-
-    function toggleSplitOptions() {
-      const mode = document.getElementById('split-mode').value;
-      document.getElementById('split-range-box').style.display = (mode === 'range') ? 'block' : 'none';
-      document.getElementById('split-chunk-box').style.display = (mode === 'chunk') ? 'block' : 'none';
-    }
-
-    function handleFilesSelect(type) {
-      const input = document.getElementById(type === 'merge' ? 'merge-files' : type === 'img2pdf' ? 'img2pdf-files' : `${type}-file`);
-      const container = document.getElementById(`${type}-list`);
-      container.innerHTML = '';
-      
-      for (let f of input.files) {
-        const item = document.createElement('div');
-        item.className = 'file-item';
-        item.innerHTML = `<span>📄 ${f.name}</span><span>${(f.size / 1024).toFixed(1)} KB</span>`;
-        container.appendChild(item);
-      }
-    }
-
-    async function submitMerge() {
-      const input = document.getElementById('merge-files');
-      if (!input.files.length) return alert('Select at least 2 PDF files.');
-      
-      const formData = new FormData();
-      for (let f of input.files) formData.append('files', f);
-      
-      const res = await fetch('/api/merge', { method: 'POST', body: formData });
-      const data = await res.json();
-      
-      if (data.success) {
-        document.getElementById('merge-result').classList.add('show');
-        document.getElementById('merge-dl').href = data.download_url;
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function submitSplit() {
-      const input = document.getElementById('split-file');
-      if (!input.files.length) return alert('Select a PDF file.');
-
-      const formData = new FormData();
-      formData.append('file', input.files[0]);
-      formData.append('mode', document.getElementById('split-mode').value);
-      formData.append('range_str', document.getElementById('split-range').value);
-      formData.append('chunk_size', document.getElementById('split-chunk').value);
-
-      const res = await fetch('/api/split', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.success) {
-        const box = document.getElementById('split-result');
-        const list = document.getElementById('split-res-list');
-        list.innerHTML = '';
-        data.files.forEach(f => {
-          list.innerHTML += `<div><a class="download-link" href="${f.url}" download>⬇️ Download ${f.filename}</a></div>`;
-        });
-        box.classList.add('show');
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function submitRotate() {
-      const input = document.getElementById('rotate-file');
-      if (!input.files.length) return alert('Select a PDF file.');
-
-      const formData = new FormData();
-      formData.append('file', input.files[0]);
-      formData.append('angle', document.getElementById('rotate-angle').value);
-
-      const res = await fetch('/api/rotate', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById('rotate-result').classList.add('show');
-        document.getElementById('rotate-dl').href = data.download_url;
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function submitImg2Pdf() {
-      const input = document.getElementById('img2pdf-files');
-      if (!input.files.length) return alert('Select at least 1 image file.');
-
-      const formData = new FormData();
-      for (let f of input.files) formData.append('files', f);
-
-      const res = await fetch('/api/image-to-pdf', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById('img2pdf-result').classList.add('show');
-        document.getElementById('img2pdf-dl').href = data.download_url;
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function submitPdf2Img() {
-      const input = document.getElementById('pdf2img-file');
-      if (!input.files.length) return alert('Select a PDF file.');
-
-      const formData = new FormData();
-      formData.append('file', input.files[0]);
-      formData.append('format', document.getElementById('pdf2img-format').value);
-      formData.append('dpi', document.getElementById('pdf2img-dpi').value);
-
-      const res = await fetch('/api/pdf-to-image', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.success) {
-        const box = document.getElementById('pdf2img-result');
-        const list = document.getElementById('pdf2img-res-list');
-        list.innerHTML = '';
-        data.files.forEach(f => {
-          list.innerHTML += `<div><a class="download-link" href="${f.url}" download>⬇️ Download ${f.filename}</a></div>`;
-        });
-        box.classList.add('show');
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function submitWatermark() {
-      const input = document.getElementById('wm-file');
-      if (!input.files.length) return alert('Select a PDF file.');
-
-      const formData = new FormData();
-      formData.append('file', input.files[0]);
-      formData.append('type', 'text');
-      formData.append('text', document.getElementById('wm-text').value);
-      formData.append('opacity', document.getElementById('wm-opacity').value);
-
-      const res = await fetch('/api/watermark', { method: 'POST', body: formData });
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById('wm-result').classList.add('show');
-        document.getElementById('wm-dl').href = data.download_url;
-        loadHistory();
-      } else {
-        alert(data.error);
-      }
-    }
-
-    async function loadHistory() {
-      const res = await fetch('/api/history');
-      const data = await res.json();
-      const container = document.getElementById('history-container');
-      
-      if (!data.length) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No recent history recorded.</div>';
-        return;
-      }
-      
-      container.innerHTML = '';
-      data.slice(0, 5).forEach(item => {
-        container.innerHTML += `
-          <div style="background: var(--bg-dark); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px;">
-            <strong>[${item.timestamp}] ${item.operation}</strong> - ${item.filename}
+      <div class="doc-stack">
+        <div class="doc-sheet">
+          <div class="doc-lines">
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
           </div>
-        `;
-      });
-    }
+        </div>
+        <div class="doc-sheet">
+          <div class="doc-lines">
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+          </div>
+        </div>
+        <div class="doc-sheet">
+          <div class="doc-lines">
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    loadHistory();
-  </script>
+  <!-- ═══════════════════════════════════════════════════════════
+       TOOL INDEX — numbered editorial list
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="tool-index" id="tools-section">
+    <div class="tool-index-inner">
+      <p class="section-label">Available tools</p>
+      <h2 class="section-title">Six tools. Every format covered.</h2>
+
+      <div class="tool-index-cols" aria-hidden="true">
+        <span>#</span>
+        <span>Operation</span>
+        <span></span>
+      </div>
+
+      <ul class="tool-rows" role="list">
+
+        <li class="tool-row" id="tool-row-merge" onclick="openTool('merge')"
+            role="button" tabindex="0" aria-label="Open Merge PDF tool">
+          <span class="tool-row-num">01</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">Merge PDF</span>
+            <span class="tool-row-desc">Combine any number of PDFs into a single unified document</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+        <li class="tool-row" id="tool-row-split" onclick="openTool('split')"
+            role="button" tabindex="0" aria-label="Open Split PDF tool">
+          <span class="tool-row-num">02</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">Split PDF</span>
+            <span class="tool-row-desc">Extract selected pages or divide into custom chunks</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+        <li class="tool-row" id="tool-row-rotate" onclick="openTool('rotate')"
+            role="button" tabindex="0" aria-label="Open Rotate Pages tool">
+          <span class="tool-row-num">03</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">Rotate Pages</span>
+            <span class="tool-row-desc">Reorient PDF pages by 90°, 180° or 270°</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+        <li class="tool-row" id="tool-row-img2pdf" onclick="openTool('img2pdf')"
+            role="button" tabindex="0" aria-label="Open Images to PDF tool">
+          <span class="tool-row-num">04</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">Images → PDF</span>
+            <span class="tool-row-desc">Collect PNG, JPG and BMP images into one PDF document</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+        <li class="tool-row" id="tool-row-pdf2img" onclick="openTool('pdf2img')"
+            role="button" tabindex="0" aria-label="Open PDF to Images tool">
+          <span class="tool-row-num">05</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">PDF → Images</span>
+            <span class="tool-row-desc">Render each page as a high-resolution PNG or JPEG file</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+        <li class="tool-row" id="tool-row-watermark" onclick="openTool('watermark')"
+            role="button" tabindex="0" aria-label="Open Watermark tool">
+          <span class="tool-row-num">06</span>
+          <div class="tool-row-content">
+            <span class="tool-row-title">Watermark</span>
+            <span class="tool-row-desc">Stamp custom text onto every page with opacity control</span>
+          </div>
+          <span class="tool-row-arrow" aria-hidden="true">→</span>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       WORKSPACE PANELS — all IDs and form inputs preserved
+       ═══════════════════════════════════════════════════════════ -->
+
+  <!-- 1. MERGE PDF -->
+  <div id="workspace-merge" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">Merge PDF Files</h2>
+          <p class="workspace-desc">Combine multiple PDF files into a single unified document.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-merge">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="merge" onclick="triggerFileInput('merge')" id="dz-merge"
+           role="button" aria-label="Upload PDF files for merging">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop PDF files here</p>
+        <p class="dropzone-hint">Select 2 or more PDF documents</p>
+        <span class="btn-browse">Choose Files</span>
+        <input type="file" id="input-merge" multiple accept=".pdf"
+               style="display:none" onchange="handleFileInputChange('merge')">
+      </div>
+
+      <div id="preview-merge" class="file-preview-list"></div>
+      <button id="btn-submit-merge" class="btn-submit" onclick="submitMerge()">Merge PDFs</button>
+
+      <div id="result-merge" class="result-banner">
+        <p class="result-title">✓ PDFs merged successfully</p>
+        <p style="font-size:13px;color:var(--fg-muted);margin-top:4px;">Your merged document is ready to download.</p>
+        <a id="dl-merge" class="btn-download" href="#" download>Download Merged PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SPLIT PDF -->
+  <div id="workspace-split" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">Split PDF Document</h2>
+          <p class="workspace-desc">Extract page ranges or split every page into individual files.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-split">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="split" onclick="triggerFileInput('split')" id="dz-split"
+           role="button" aria-label="Upload PDF file for splitting">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop a PDF file here</p>
+        <p class="dropzone-hint">Select a single PDF document</p>
+        <span class="btn-browse">Choose File</span>
+        <input type="file" id="input-split" accept=".pdf"
+               style="display:none" onchange="handleFileInputChange('split')">
+      </div>
+
+      <div id="preview-split" class="file-preview-list"></div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="split-mode">Split Mode</label>
+          <select id="split-mode" class="form-control" onchange="toggleSplitOptions()">
+            <option value="every">Every Page — 1 PDF per page</option>
+            <option value="range">Extract Page Range</option>
+            <option value="chunk">Split into Equal Chunks</option>
+          </select>
+        </div>
+        <div id="split-range-box" class="form-group" style="display:none">
+          <label class="form-label" for="split-range">Page Range</label>
+          <input type="text" id="split-range" class="form-control" placeholder="e.g. 1-3, 5, 8-10">
+        </div>
+        <div id="split-chunk-box" class="form-group" style="display:none">
+          <label class="form-label" for="split-chunk">Pages per Chunk</label>
+          <input type="number" id="split-chunk" class="form-control" value="5" min="1">
+        </div>
+      </div>
+
+      <button id="btn-submit-split" class="btn-submit" onclick="submitSplit()">Split PDF</button>
+
+      <div id="result-split" class="result-banner">
+        <p class="result-title">✓ PDF split successfully</p>
+        <div id="split-dl-list" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ROTATE PAGES -->
+  <div id="workspace-rotate" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">Rotate PDF Pages</h2>
+          <p class="workspace-desc">Reorient PDF pages by 90°, 180° or 270°.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-rotate">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="rotate" onclick="triggerFileInput('rotate')" id="dz-rotate"
+           role="button" aria-label="Upload PDF file for rotation">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop a PDF file here</p>
+        <p class="dropzone-hint">Select a single PDF document</p>
+        <span class="btn-browse">Choose File</span>
+        <input type="file" id="input-rotate" accept=".pdf"
+               style="display:none" onchange="handleFileInputChange('rotate')">
+      </div>
+
+      <div id="preview-rotate" class="file-preview-list"></div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="rotate-angle">Rotation Angle</label>
+          <select id="rotate-angle" class="form-control">
+            <option value="90">90° Clockwise</option>
+            <option value="180">180° — Upside Down</option>
+            <option value="270">270° Counter-Clockwise</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="btn-submit-rotate" class="btn-submit" onclick="submitRotate()">Rotate Pages</button>
+
+      <div id="result-rotate" class="result-banner">
+        <p class="result-title">✓ PDF rotated successfully</p>
+        <a id="dl-rotate" class="btn-download" href="#" download>Download Rotated PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. IMAGES TO PDF -->
+  <div id="workspace-img2pdf" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">Images → PDF</h2>
+          <p class="workspace-desc">Convert PNG, JPG, JPEG and BMP image files into a PDF document.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-img2pdf">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="img2pdf" onclick="triggerFileInput('img2pdf')" id="dz-img2pdf"
+           role="button" aria-label="Upload images to convert to PDF">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop image files here</p>
+        <p class="dropzone-hint">PNG, JPG, JPEG, BMP supported</p>
+        <span class="btn-browse">Choose Images</span>
+        <input type="file" id="input-img2pdf" multiple accept="image/*"
+               style="display:none" onchange="handleFileInputChange('img2pdf')">
+      </div>
+
+      <div id="preview-img2pdf" class="file-preview-list"></div>
+      <button id="btn-submit-img2pdf" class="btn-submit" onclick="submitImg2Pdf()">Convert to PDF</button>
+
+      <div id="result-img2pdf" class="result-banner">
+        <p class="result-title">✓ Images converted to PDF</p>
+        <a id="dl-img2pdf" class="btn-download" href="#" download>Download Converted PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PDF TO IMAGES -->
+  <div id="workspace-pdf2img" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">PDF → Images</h2>
+          <p class="workspace-desc">Rasterize PDF pages into high-definition PNG or JPEG files.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-pdf2img">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="pdf2img" onclick="triggerFileInput('pdf2img')" id="dz-pdf2img"
+           role="button" aria-label="Upload PDF file to export as images">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop a PDF file here</p>
+        <p class="dropzone-hint">Select a single PDF document</p>
+        <span class="btn-browse">Choose File</span>
+        <input type="file" id="input-pdf2img" accept=".pdf"
+               style="display:none" onchange="handleFileInputChange('pdf2img')">
+      </div>
+
+      <div id="preview-pdf2img" class="file-preview-list"></div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="pdf2img-format">Export Format</label>
+          <select id="pdf2img-format" class="form-control">
+            <option value="png">PNG — Lossless Quality</option>
+            <option value="jpeg">JPEG — Compact File Size</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="pdf2img-dpi">Resolution</label>
+          <select id="pdf2img-dpi" class="form-control">
+            <option value="150">150 DPI — Standard</option>
+            <option value="72">72 DPI — Web Draft</option>
+            <option value="300">300 DPI — Print Quality</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="btn-submit-pdf2img" class="btn-submit" onclick="submitPdf2Img()">Export Images</button>
+
+      <div id="result-pdf2img" class="result-banner">
+        <p class="result-title">✓ PDF exported to images</p>
+        <div id="pdf2img-dl-list" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. WATERMARK -->
+  <div id="workspace-watermark" class="workspace-panel">
+    <div class="workspace-panel-inner">
+      <div class="workspace-head">
+        <div>
+          <h2 class="workspace-title">Add Watermark</h2>
+          <p class="workspace-desc">Apply custom text watermarks to every page of your PDF.</p>
+        </div>
+        <button class="btn-close" onclick="closeWorkspace()" id="btn-close-watermark">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+          Close
+        </button>
+      </div>
+
+      <div class="dropzone" data-tool="watermark" onclick="triggerFileInput('watermark')" id="dz-watermark"
+           role="button" aria-label="Upload PDF file to watermark">
+        <div class="dropzone-icon">
+          <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+          </svg>
+        </div>
+        <p class="dropzone-text">Drop a PDF file here</p>
+        <p class="dropzone-hint">Select a single PDF document</p>
+        <span class="btn-browse">Choose File</span>
+        <input type="file" id="input-watermark" accept=".pdf"
+               style="display:none" onchange="handleFileInputChange('watermark')">
+      </div>
+
+      <div id="preview-watermark" class="file-preview-list"></div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="wm-text">Watermark Text</label>
+          <input type="text" id="wm-text" class="form-control" value="CONFIDENTIAL">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="wm-opacity">Opacity (0.1 – 1.0)</label>
+          <input type="number" id="wm-opacity" class="form-control"
+                 step="0.1" value="0.3" min="0.1" max="1.0">
+        </div>
+      </div>
+
+      <button id="btn-submit-watermark" class="btn-submit" onclick="submitWatermark()">Apply Watermark</button>
+
+      <div id="result-watermark" class="result-banner">
+        <p class="result-title">✓ Watermark applied successfully</p>
+        <a id="dl-watermark" class="btn-download" href="#" download>Download Watermarked PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       WORKFLOW — Upload → Process → Download
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="workflow" id="about-section">
+    <div class="workflow-inner">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Three steps to done.</h2>
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <p class="step-num">01 — Upload</p>
+          <h3 class="step-title">Drop your files</h3>
+          <p class="step-desc">Drag and drop PDFs or images directly into any tool workspace. No account, no setup, no waiting.</p>
+        </div>
+        <div class="workflow-step">
+          <p class="step-num">02 — Process</p>
+          <h3 class="step-title">We handle it locally</h3>
+          <p class="step-desc">DocCraft processes your files using PyMuPDF on your own machine. Every operation completes in seconds.</p>
+        </div>
+        <div class="workflow-step">
+          <p class="step-num">03 — Download</p>
+          <h3 class="step-title">Your file, instantly</h3>
+          <p class="step-desc">Download the processed file directly to your machine. No email, no cloud storage, no links that expire.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PRIVACY
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="privacy" id="privacy-section">
+    <div class="privacy-inner">
+      <h2 class="privacy-headline">Your documents stay yours.</h2>
+      <div class="privacy-points">
+        <div class="privacy-point">
+          <p class="privacy-dash">—</p>
+          <h3>100% Local Processing</h3>
+          <p>Every operation runs on your machine. Your documents never touch a server, a cloud or a third-party API. Complete privacy by architecture.</p>
+        </div>
+        <div class="privacy-point">
+          <p class="privacy-dash">—</p>
+          <h3>No Account Required</h3>
+          <p>No login, no email, no tracking cookies. Open the app, use it, close it. That's the full lifecycle of your data.</p>
+        </div>
+        <div class="privacy-point">
+          <p class="privacy-dash">—</p>
+          <h3>Fully Offline Capable</h3>
+          <p>Once running, DocCraft requires no internet connection. Perfect for confidential documents that cannot leave your network.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       RECENT ACTIVITY TIMELINE
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="activity" id="activity-section">
+    <div class="activity-inner">
+      <p class="section-label">Operations log</p>
+      <h2 class="section-title">Recent Activity</h2>
+      <div class="timeline" id="history-container">
+        <p class="timeline-empty">No recent operations yet. Process a PDF to see your activity here.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       COMING SOON CATALOG
+       ═══════════════════════════════════════════════════════════ -->
+  <section class="coming-soon">
+    <div class="coming-soon-inner">
+      <p class="section-label">In development</p>
+      <h2 class="section-title">Coming soon.</h2>
+      <div class="coming-grid">
+
+        <div class="coming-item" onclick="handleComingSoon('Compress PDF')"
+             role="button" tabindex="0" aria-label="Compress PDF — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">Compress PDF</p>
+          <p class="coming-desc">Reduce file size while preserving visual quality</p>
+        </div>
+
+        <div class="coming-item" onclick="handleComingSoon('PDF to Word')"
+             role="button" tabindex="0" aria-label="PDF to Word — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">PDF → Word</p>
+          <p class="coming-desc">Convert to fully editable DOCX files</p>
+        </div>
+
+        <div class="coming-item" onclick="handleComingSoon('PDF to Excel')"
+             role="button" tabindex="0" aria-label="PDF to Excel — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">PDF → Excel</p>
+          <p class="coming-desc">Extract data tables into spreadsheets</p>
+        </div>
+
+        <div class="coming-item" onclick="handleComingSoon('Add Password')"
+             role="button" tabindex="0" aria-label="Add Password — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">Add Password</p>
+          <p class="coming-desc">Encrypt PDFs with secure password protection</p>
+        </div>
+
+        <div class="coming-item" onclick="handleComingSoon('Remove Password')"
+             role="button" tabindex="0" aria-label="Remove Password — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">Remove Password</p>
+          <p class="coming-desc">Unlock password-protected documents instantly</p>
+        </div>
+
+        <div class="coming-item" onclick="handleComingSoon('Page Numbering')"
+             role="button" tabindex="0" aria-label="Page Numbering — coming soon">
+          <p class="coming-tag">Soon</p>
+          <p class="coming-title">Page Numbering</p>
+          <p class="coming-desc">Add custom headers, footers and page numbers</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-brand-name">DocCraft</p>
+        <p class="footer-brand-tag">Professional document tools, built for privacy and speed.</p>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <ul>
+            <li><a href="#tools-section" onclick="openTool('merge')">Merge PDF</a></li>
+            <li><a href="#tools-section" onclick="openTool('split')">Split PDF</a></li>
+            <li><a href="#tools-section" onclick="openTool('rotate')">Rotate Pages</a></li>
+            <li><a href="#tools-section" onclick="openTool('img2pdf')">Images → PDF</a></li>
+            <li><a href="#tools-section" onclick="openTool('pdf2img')">PDF → Images</a></li>
+            <li><a href="#tools-section" onclick="openTool('watermark')">Watermark</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#privacy-section">Privacy</a></li>
+            <li><a href="#about-section">About</a></li>
+            <li><a href="#activity-section">Activity Log</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 DocCraft</span>
+      <span class="footer-copy">Built with Python &amp; PyMuPDF</span>
+    </div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
 </body>
 </html>

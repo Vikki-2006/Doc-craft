@@ -495,3 +495,375 @@ def add_image_watermark(pdf_path, output_path, watermark_img_path, opacity=0.3, 
         if isinstance(e, PDFToolkitError):
             raise e
         raise PDFToolkitError(f"Image watermark operation failed: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NEW TOOLS — DocCraft 2.0
+# ─────────────────────────────────────────────────────────────────────────────
+
+def compress_pdf(pdf_path, output_path, progress_callback=None):
+    """
+    Compress a PDF by removing unused objects and optimizing streams/images/fonts.
+    Returns (output_path, original_size, compressed_size, reduction_percent).
+    """
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc = fitz.open(pdf_path)
+    if doc.is_encrypted:
+        doc.close()
+        raise PasswordProtectedPDFError("PDF file is password protected.")
+
+    original_size = os.path.getsize(pdf_path)
+
+    try:
+        if progress_callback:
+            progress_callback(0, 1, "Optimising PDF structure and streams…")
+
+        save_opts = dict(garbage=4, deflate=True, clean=True)
+        try:
+            doc.save(output_path, deflate_images=True, deflate_fonts=True, **save_opts)
+        except TypeError:
+            # Older PyMuPDF build — fall back to basic compression
+            doc.save(output_path, **save_opts)
+
+        doc.close()
+
+        compressed_size = os.path.getsize(output_path)
+        reduction = max(0.0, round((1 - compressed_size / original_size) * 100, 1))
+
+        if progress_callback:
+            progress_callback(1, 1, f"Compression complete — {reduction}% size reduction.")
+
+        return output_path, original_size, compressed_size, reduction
+
+    except Exception as e:
+        doc.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"Compression failed: {str(e)}")
+
+
+def add_password(pdf_path, output_path, user_password, owner_password=None, progress_callback=None):
+    """
+    Protect a PDF with AES-256 encryption using a user password.
+    owner_password defaults to user_password if not provided.
+    """
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+    if not user_password:
+        raise ValueError("Password cannot be empty.")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc = fitz.open(pdf_path)
+    if doc.is_encrypted:
+        doc.close()
+        raise PasswordProtectedPDFError("PDF is already password protected. Remove the existing password first.")
+
+    if not owner_password:
+        owner_password = user_password
+
+    try:
+        if progress_callback:
+            progress_callback(0, 1, "Applying AES-256 encryption…")
+
+        perm = int(
+            fitz.PDF_PERM_ACCESSIBILITY
+            | fitz.PDF_PERM_PRINT
+            | fitz.PDF_PERM_COPY
+        )
+
+        doc.save(
+            output_path,
+            encryption=fitz.PDF_ENCRYPT_AES_256,
+            owner_pw=owner_password,
+            user_pw=user_password,
+            permissions=perm,
+            garbage=4,
+            deflate=True,
+        )
+        doc.close()
+
+        if progress_callback:
+            progress_callback(1, 1, "Password protection applied.")
+
+        return output_path
+
+    except Exception as e:
+        doc.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"Password encryption failed: {str(e)}")
+
+
+def remove_password(pdf_path, output_path, password, progress_callback=None):
+    """
+    Remove password protection from a PDF by re-saving without encryption.
+    Raises ValueError if the password is incorrect.
+    """
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc = fitz.open(pdf_path)
+    if doc.is_encrypted:
+        if not doc.authenticate(password):
+            doc.close()
+            raise ValueError("Incorrect password — cannot unlock this PDF.")
+
+    try:
+        if progress_callback:
+            progress_callback(0, 1, "Removing encryption…")
+
+        doc.save(
+            output_path,
+            encryption=fitz.PDF_ENCRYPT_NONE,
+            garbage=4,
+            deflate=True,
+        )
+        doc.close()
+
+        if progress_callback:
+            progress_callback(1, 1, "Password removed successfully.")
+
+        return output_path
+
+    except Exception as e:
+        doc.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"Remove password failed: {str(e)}")
+
+
+def add_page_numbers(
+    pdf_path,
+    output_path,
+    position="bottom-center",
+    start_num=1,
+    prefix="",
+    suffix="",
+    font_size=11,
+    progress_callback=None,
+):
+    """
+    Insert page number text at a specified position on every page.
+    """
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc = fitz.open(pdf_path)
+    if doc.is_encrypted:
+        doc.close()
+        raise PasswordProtectedPDFError("PDF file is password protected.")
+
+    total_pages = doc.page_count
+    margin = 26
+
+    try:
+        for page_idx, page in enumerate(doc):
+            if progress_callback:
+                progress_callback(page_idx, total_pages, f"Numbering page {page_idx + 1}/{total_pages}…")
+
+            rect = page.rect
+            label = f"{prefix}{page_idx + start_num}{suffix}"
+
+            # Determine insertion point
+            if position == "bottom-center":
+                pt = fitz.Point(rect.width / 2, rect.height - margin)
+            elif position == "bottom-left":
+                pt = fitz.Point(margin, rect.height - margin)
+            elif position == "bottom-right":
+                pt = fitz.Point(rect.width - margin, rect.height - margin)
+            elif position == "top-center":
+                pt = fitz.Point(rect.width / 2, margin + font_size)
+            elif position == "top-left":
+                pt = fitz.Point(margin, margin + font_size)
+            elif position == "top-right":
+                pt = fitz.Point(rect.width - margin, margin + font_size)
+            else:
+                pt = fitz.Point(rect.width / 2, rect.height - margin)
+
+            page.insert_text(
+                pt,
+                label,
+                fontsize=font_size,
+                color=(0.3, 0.3, 0.3),
+                fontname="Helvetica",
+            )
+
+        if progress_callback:
+            progress_callback(total_pages, total_pages, "Page numbers added.")
+
+        doc.save(output_path, garbage=4, deflate=True)
+        doc.close()
+        return output_path
+
+    except Exception as e:
+        doc.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"Page numbering failed: {str(e)}")
+
+
+def pdf_to_word(pdf_path, output_path, progress_callback=None):
+    """
+    Export PDF text content to a Microsoft Word (.docx) document.
+    Extracts text per page; layout/images from scanned PDFs are not reconstructed.
+    """
+    try:
+        from docx import Document as DocxDocument
+        from docx.shared import Pt, RGBColor, Cm
+    except ImportError:
+        raise PDFToolkitError(
+            "python-docx is required. Install it with: pip install python-docx"
+        )
+
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc_in = fitz.open(pdf_path)
+    if doc_in.is_encrypted:
+        doc_in.close()
+        raise PasswordProtectedPDFError("PDF file is password protected.")
+
+    total_pages = doc_in.page_count
+    docx_out = DocxDocument()
+
+    # Set reasonable margins
+    section = docx_out.sections[0]
+    section.top_margin = Cm(2)
+    section.bottom_margin = Cm(2)
+    section.left_margin = Cm(2.5)
+    section.right_margin = Cm(2.5)
+
+    try:
+        for page_idx in range(total_pages):
+            if progress_callback:
+                progress_callback(page_idx, total_pages, f"Extracting page {page_idx + 1}/{total_pages}…")
+
+            page = doc_in.load_page(page_idx)
+            text = page.get_text("text")
+
+            if page_idx > 0:
+                docx_out.add_page_break()
+
+            h = docx_out.add_heading(f"Page {page_idx + 1}", level=2)
+            if h.runs:
+                h.runs[0].font.color.rgb = RGBColor(0x43, 0x61, 0xEE)
+
+            if text.strip():
+                for line in text.split("\n"):
+                    stripped = line.strip()
+                    if stripped:
+                        p = docx_out.add_paragraph(stripped)
+                        if p.runs:
+                            p.runs[0].font.size = Pt(10)
+            else:
+                p = docx_out.add_paragraph("[No extractable text on this page]")
+                if p.runs:
+                    p.runs[0].font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+
+        if progress_callback:
+            progress_callback(total_pages, total_pages, "Word document saved.")
+
+        docx_out.save(output_path)
+        doc_in.close()
+        return output_path
+
+    except Exception as e:
+        doc_in.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"PDF to Word conversion failed: {str(e)}")
+
+
+def pdf_to_excel(pdf_path, output_path, progress_callback=None):
+    """
+    Export PDF text content to a Microsoft Excel (.xlsx) workbook.
+    Creates a Summary sheet and one sheet per PDF page.
+    """
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+    except ImportError:
+        raise PDFToolkitError(
+            "openpyxl is required. Install it with: pip install openpyxl"
+        )
+
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Source file not found: {pdf_path}")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+
+    doc_in = fitz.open(pdf_path)
+    if doc_in.is_encrypted:
+        doc_in.close()
+        raise PasswordProtectedPDFError("PDF file is password protected.")
+
+    total_pages = doc_in.page_count
+    wb = Workbook()
+
+    # Summary sheet
+    ws_summary = wb.active
+    ws_summary.title = "Summary"
+    bold_font = Font(bold=True)
+    ws_summary.append(["DocCraft — PDF to Excel Export"])
+    ws_summary.append(["Source", os.path.basename(pdf_path)])
+    ws_summary.append(["Pages", total_pages])
+    ws_summary.append([])
+    ws_summary.append(["Page", "Text Lines", "Characters"])
+    for cell in ws_summary["5"]:
+        cell.font = bold_font
+
+    try:
+        for page_idx in range(total_pages):
+            if progress_callback:
+                progress_callback(page_idx, total_pages, f"Processing page {page_idx + 1}/{total_pages}…")
+
+            page = doc_in.load_page(page_idx)
+            text = page.get_text("text")
+            lines = [l.strip() for l in text.split("\n") if l.strip()]
+
+            ws_summary.append([page_idx + 1, len(lines), len(text)])
+
+            sheet_name = f"Page {page_idx + 1}"[:31]
+            ws = wb.create_sheet(title=sheet_name)
+            ws.append([f"Page {page_idx + 1} — Extracted Text"])
+            ws.append(["Line #", "Content"])
+            ws["A1"].font = bold_font
+            ws["A2"].font = bold_font
+            ws["B2"].font = bold_font
+
+            if lines:
+                for i, line in enumerate(lines, 1):
+                    ws.append([i, line])
+            else:
+                ws.append(["—", "[No extractable text on this page]"])
+
+            ws.column_dimensions["A"].width = 8
+            ws.column_dimensions["B"].width = 90
+
+        if progress_callback:
+            progress_callback(total_pages, total_pages, "Excel workbook saved.")
+
+        ws_summary.column_dimensions["A"].width = 14
+        ws_summary.column_dimensions["B"].width = 50
+        ws_summary.column_dimensions["C"].width = 14
+
+        wb.save(output_path)
+        doc_in.close()
+        return output_path
+
+    except Exception as e:
+        doc_in.close()
+        if isinstance(e, PDFToolkitError):
+            raise
+        raise PDFToolkitError(f"PDF to Excel conversion failed: {str(e)}")
