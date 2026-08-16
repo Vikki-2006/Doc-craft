@@ -67,6 +67,11 @@ def favicon():
         return send_file(svg_fav, mimetype="image/svg+xml")
     return ("", 204)
 
+@app.route("/static/<path:filename>")
+def static_files(filename):
+    return send_from_directory(os.path.join(BASE_DIR, "static"), filename)
+
+
 
 @app.route("/output/<path:filename>")
 def download_file(filename):
