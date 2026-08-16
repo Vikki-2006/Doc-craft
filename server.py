@@ -16,7 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from utils.pdf_utils import (
     merge_pdfs, split_pdf, rotate_pdf, pdf_to_images,
-    add_text_watermark, add_image_watermark, get_pdf_info
+    add_text_watermark, add_image_watermark, get_pdf_info,
+    compress_pdf, add_password, remove_password, add_page_numbers,
+    pdf_to_word, pdf_to_excel
 )
 from utils.image_utils import images_to_pdf
 from utils.helpers import RecentFilesManager, format_bytes
@@ -215,6 +217,162 @@ def api_watermark():
             add_image_watermark(save_p, out_path, watermark_img_path=wm_save_p, opacity=opacity, position=position, scale=scale)
 
         RecentFilesManager.add_record(file.filename, "Watermark PDF", out_path)
+        return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/compress", methods=["POST"])
+def api_compress():
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_compressed.pdf"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        out_path, orig_sz, comp_sz, reduction = compress_pdf(save_p, out_path)
+
+        RecentFilesManager.add_record(file.filename, "Compress PDF", out_path)
+        return jsonify({
+            "success": True,
+            "download_url": f"/output/{out_name}",
+            "filename": out_name,
+            "original_size": orig_sz,
+            "compressed_size": comp_sz,
+            "reduction_percent": reduction
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/add-password", methods=["POST"])
+def api_add_password():
+    file = request.files.get("file")
+    password = request.form.get("password", "")
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+    if not password:
+        return jsonify({"success": False, "error": "Password cannot be empty."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_protected.pdf"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        add_password(save_p, out_path, user_password=password)
+
+        RecentFilesManager.add_record(file.filename, "Add Password", out_path)
+        return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/remove-password", methods=["POST"])
+def api_remove_password():
+    file = request.files.get("file")
+    password = request.form.get("password", "")
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_unlocked.pdf"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        remove_password(save_p, out_path, password=password)
+
+        RecentFilesManager.add_record(file.filename, "Remove Password", out_path)
+        return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/page-numbers", methods=["POST"])
+def api_page_numbers():
+    file = request.files.get("file")
+    position = request.form.get("position", "bottom-center")
+    start_num = int(request.form.get("start_num", 1))
+    prefix = request.form.get("prefix", "")
+    suffix = request.form.get("suffix", "")
+    font_size = int(request.form.get("font_size", 11))
+
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_numbered.pdf"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        add_page_numbers(
+            save_p, out_path,
+            position=position,
+            start_num=start_num,
+            prefix=prefix,
+            suffix=suffix,
+            font_size=font_size
+        )
+
+        RecentFilesManager.add_record(file.filename, "Page Numbers", out_path)
+        return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/pdf-to-word", methods=["POST"])
+def api_pdf_to_word():
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_converted.docx"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        pdf_to_word(save_p, out_path)
+
+        RecentFilesManager.add_record(file.filename, "PDF to Word", out_path)
+        return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/pdf-to-excel", methods=["POST"])
+def api_pdf_to_excel():
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return jsonify({"success": False, "error": "No PDF file uploaded."}), 400
+
+    try:
+        fn = secure_filename(file.filename)
+        save_p = os.path.join(TEMP_DIR, fn)
+        file.save(save_p)
+
+        base = os.path.splitext(fn)[0]
+        out_name = f"{base}_tables.xlsx"
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+
+        pdf_to_excel(save_p, out_path)
+
+        RecentFilesManager.add_record(file.filename, "PDF to Excel", out_path)
         return jsonify({"success": True, "download_url": f"/output/{out_name}", "filename": out_name})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

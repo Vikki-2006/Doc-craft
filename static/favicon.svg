@@ -1,7 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M5 2h14l7 8v20H5V2z" stroke-width="2"/>
-  <path d="M19 2v8h7" stroke-width="2"/>
-  <line x1="9" y1="15" x2="23" y2="15" stroke-width="1.5"/>
-  <line x1="9" y1="19" x2="23" y2="19" stroke-width="1.5"/>
-  <line x1="9" y1="23" x2="16" y2="23" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="doccraft-copper-grad" x1="6" y1="6" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="45%" stop-color="#D97736" />
+      <stop offset="100%" stop-color="#A84E18" />
+    </linearGradient>
+    <linearGradient id="doccraft-facet-grad" x1="22" y1="12" x2="38" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFBE5B" />
+      <stop offset="100%" stop-color="#D97736" />
+    </linearGradient>
+  </defs>
+  <!-- Background Layer: Document Backing Sheet -->
+  <rect x="7" y="6" width="34" height="36" rx="4" fill="#141722" stroke="#262A3B" stroke-width="1.5" />
+  
+  <!-- Mid Layer: Geometric Folding D / C Precision Craft Silhouette -->
+  <!-- Outer D Spine -->
+  <path d="M14 12C14 10.8954 14.8954 10 16 10H28L36 18V36C36 37.1046 35.1046 38 34 38H16C14.8954 38 14 37.1046 14 36V12Z" fill="url(#doccraft-copper-grad)" />
+  
+  <!-- Facet Corner Fold -->
+  <path d="M28 10V16C28 17.1046 28.8954 18 30 18H36L28 10Z" fill="url(#doccraft-facet-grad)" />
+  
+  <!-- Negative Space "C" Core / Craft Precision Aperture -->
+  <path d="M21 19C19.8954 19 19 19.8954 19 21V27C19 28.1046 19.8954 29 21 29H29C29.5523 29 30 28.5523 30 28C30 27.4477 29.5523 27 29 27H22.5C22.2239 27 22 26.7761 22 26.5V21.5C22 21.2239 22.2239 21 22.5 21H29C29.5523 21 30 20.5523 30 20C30 19.4477 29.5523 19 29 19H21Z" fill="#0B0C10" />
 </svg>
