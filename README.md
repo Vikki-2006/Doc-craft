@@ -17,7 +17,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
-
+ [![Live Demo](https://img.shields.io/badge/%20Live%20Demo-DocCraft-blue?style=for-the-badge)](https://doccraft-tool.vercel.app/)
 ---
 
 
