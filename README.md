@@ -3,17 +3,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 # 📄 DocCraft            
 
 > **A modern offline PDF toolkit built with Python and CustomTkinter.**
