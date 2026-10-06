@@ -10,8 +10,6 @@
  [![Live Demo](https://img.shields.io/badge/%20Live%20Demo-DocCraft-blue?style=for-the-badge)](https://doccraft-tool.vercel.app/)
 ---
 
-
-
 # ✨ About
 
 **DocCraft** is a modern desktop PDF utility built entirely with **Python**.
